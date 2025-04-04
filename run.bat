@@ -1,0 +1,1 @@
+python run.py --dataset RE --epoch_clip 10 --batch_size_clip 16 --lr_clip 1e-5 --epoch_cla 10 --batch_size_cla 32 --lr_2 1e-5 --seed 42
