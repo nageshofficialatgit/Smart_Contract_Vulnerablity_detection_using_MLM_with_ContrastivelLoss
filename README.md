@@ -1,59 +1,54 @@
-Mart - Contract Vulnerability Detection using MLM and CL
-This project implements a smart contract vulnerability detection framework based on Contrastive Learning Enhanced Automated Recognition (Clear). The method leverages both Masked Language Modeling (MLM) and Contrastive Learning (CL) to capture fine-grained correlation information among smart contracts. This, in turn, improves the detection of subtle vulnerabilities that might be overlooked when treating each contract as an isolated entity.
+# Mart - Contract Vulnerability Detection using MLM and CL
 
-Overview
-Smart contracts are critical components in blockchain systems, yet they are prone to vulnerabilities that can lead to significant financial losses. This project aims to improve vulnerability detection by:
+**This project implements a smart contract vulnerability detection framework based on Contrastive Learning Enhanced Automated Recognition (Clear). The method leverages both Masked Language Modeling (MLM) and Contrastive Learning (CL) to capture fine-grained correlation information among smart contracts. This, in turn, improves the detection of subtle vulnerabilities that might be overlooked when treating each contract as an isolated entity.**
 
-Sampling Contract Pairs: Generating pairs of contracts to capture inter-contract relationships.
+## Overview
 
-Contrastive Learning: Using a dual loss function that combines MLM and contrastive loss to learn detailed semantic and structural representations.
+**Smart contracts are critical components in blockchain systems, yet they are prone to vulnerabilities that can lead to significant financial losses. This project aims to improve vulnerability detection by:**
 
-Vulnerability Detection: Fine-tuning the learned representations to accurately classify contracts as vulnerable or non-vulnerable.
+- **Sampling Contract Pairs:** Generating pairs of contracts to capture inter-contract relationships.
+- **Contrastive Learning:** Using a dual loss function that combines MLM and contrastive loss to learn detailed semantic and structural representations.
+- **Vulnerability Detection:** Fine-tuning the learned representations to accurately classify contracts as vulnerable or non-vulnerable.
 
-Process
-1. Data Sampling
-Objective: Establish correlations between smart contracts.
+## Process
 
-Method:
+### 1. Data Sampling
 
-Vulnerable Contract Extraction: Identify all vulnerable contracts from the dataset.
+**Objective:** Establish correlations between smart contracts.
 
-Pairing Strategy: For each contract, randomly select another contract from the vulnerable set to form a pair.
+**Method:**
 
-Correlation Labeling:
+- **Vulnerable Contract Extraction:** Identify all vulnerable contracts from the dataset.
+- **Pairing Strategy:** For each contract, randomly select another contract from the vulnerable set to form a pair.
+- **Correlation Labeling:**
+  - **Assign a label of `1` if both contracts in the pair are vulnerable (V-V).**
+  - **Assign a label of `0` if one contract is vulnerable and the other is not (V-N).**
 
-Assign a label of 1 if both contracts in the pair are vulnerable (V-V).
+### 2. Contrastive Learning Module
 
-Assign a label of 0 if one contract is vulnerable and the other is not (V-N).
+**Contextual Augmentation:**
 
-2. Contrastive Learning Module
-Contextual Augmentation:
+- **Randomly mask 30% of the tokens in the contract code.**
+- **Use a Transformer-based Masked Language Model (MLM) to predict the masked tokens.** This step helps the model learn the contextual semantics and structure of the contract code.
 
-Randomly mask 30% of the tokens in the contract code.
+**Feature Learning:**
 
-Use a Transformer-based Masked Language Model (MLM) to predict the masked tokens. This step helps the model learn the contextual semantics and structure of the contract code.
+- **Extract a global representation using the special CLS token from the Transformer output.**
+- **Integrate positional encoding with token-level features via multi-head attention to capture fine-grained information.**
 
-Feature Learning:
+**Contrastive Loss Computation:**
 
-Extract a global representation using the special CLS token from the Transformer output.
+- **Compute the Euclidean distance between the global vector representations of contract pairs.**
+- **Optimize the model with a combination of contrastive loss (which reinforces similarity for V-V pairs and dissimilarity for V-N pairs) and MLM loss.**
 
-Integrate positional encoding with token-level features via multi-head attention to capture fine-grained information.
+### 3. Vulnerability Detection Stage
 
-Contrastive Loss Computation:
+**Fine-Tuning:**
 
-Compute the Euclidean distance between the global vector representations of contract pairs.
+- **The Transformer model is fine-tuned using the feature representations from the CL module.**
+- **Both the global semantic vector and token-level features are concatenated.**
 
-Optimize the model with a combination of contrastive loss (which reinforces similarity for V-V pairs and dissimilarity for V-N pairs) and MLM loss.
+**Classification:**
 
-3. Vulnerability Detection Stage
-Fine-Tuning:
-
-The Transformer model is fine-tuned using the feature representations from the CL module.
-
-Both the global semantic vector and token-level features are concatenated.
-
-Classification:
-
-A fully connected neural network predicts whether a smart contract is vulnerable.
-
-A sigmoid activation function is applied to produce a probability, and the prediction is compared against the true label using a cross-entropy loss function.
+- **A fully connected neural network predicts whether a smart contract is vulnerable.**
+- **A sigmoid activation function is applied to produce a probability, and the prediction is compared against the true label using a cross-entropy loss function.**
